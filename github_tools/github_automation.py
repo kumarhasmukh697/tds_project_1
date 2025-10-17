@@ -3,11 +3,10 @@ import requests
 import subprocess
 import json
 
-with open("config.json") as f:
-    config = json.load(f)
 
-GITHUB_TOKEN = config["github_token"]
-GITHUB_USER = config["github_username"]
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+GITHUB_USER = os.environ.get("GITHUB_USERNAME")
+
 
 def create_and_deploy_repo(task, app_dir):
     repo_name = task.replace(" ", "-")
