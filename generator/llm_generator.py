@@ -9,9 +9,10 @@ def generate_app_code(brief, app_dir):
     """
 
     # Load API key from config.json
-    with open("config.json") as f:
-        config = json.load(f)
-    OPENAI_API_KEY = config["openai_api_key"]
+   
+
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
 
     # 👇 Tell OpenAI library to use AI Pipe’s base URL
     client = OpenAI(
