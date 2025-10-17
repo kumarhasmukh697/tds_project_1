@@ -7,10 +7,13 @@ from github_tools.github_automation import create_and_deploy_repo
 app = Flask(__name__)
 
 # Load secret and GitHub token
-with open("config.json") as f:
-    config = json.load(f)
 
-STUDENT_SECRET = config["secret"]
+
+SECRET = os.environ.get("SECRET")
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+GITHUB_USERNAME = os.environ.get("GITHUB_USERNAME")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+
 
 @app.route('/api-endpoint', methods=['POST'])
 def api_endpoint():
