@@ -65,24 +65,8 @@ def create_and_deploy_repo(task, app_dir):
     else:
         print(f"⚠️ Warning: GitHub Pages enable failed — {enable_pages.text}")
 
-    
-
-    # ✅ Step 6 — Wait for GitHub Pages to go live (safe)
-    print("⏳ Waiting for GitHub Pages to become live...")
+    # ✅ Step 6 — Skip waiting (return immediately)
+    print("ℹ️ GitHub Pages publishing may take 2–5 minutes to go live.")
     page_live = False
-    for _ in range(30):  # try up to ~3 minutes
-        try:
-            r = requests.get(pages_url)
-            if r.status_code == 200:
-                print("✅ GitHub Pages is live!")
-                page_live = True
-                break
-        except Exception as err:
-            print(f"⚠️ Waiting... error while checking page: {err}")
-        time.sleep(6)
-
-    if not page_live:
-        print("⚠️ GitHub Pages still not live after waiting. Returning anyway.")
-
 
     return repo_url, commit_sha, pages_url
