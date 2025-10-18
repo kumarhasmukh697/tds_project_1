@@ -6,7 +6,7 @@ import time
 def create_and_deploy_repo(task, app_dir):
     """
     Creates a new GitHub repository, commits generated files,
-    pushes them, and returns repo info.
+    pushes them, enables GitHub Pages, and returns repo info.
     """
     github_token = os.environ.get("GITHUB_TOKEN")
     github_username = os.environ.get("GITHUB_USERNAME")
@@ -51,9 +51,27 @@ def create_and_deploy_repo(task, app_dir):
     ], cwd=app_dir, check=True)
     subprocess.run(["git", "push", "-u", "origin", "main"], cwd=app_dir, check=True)
 
-    # ✅ Step 5 — Enable GitHub Pages URL
+    # ✅ Step 5 — GitHub Pages URL
     pages_url = f"https://{github_username}.github.io/{repo_name}/"
     print(f"🌐 GitHub Pages URL: {pages_url}")
 
-    return repo_url, commit_sha, pages_url
+    # ✅ Step 6 — Enable GitHub Pages (important!)
+    pages_api_url = f"https://api.github.com/repos/{github_username}/{repo_name}/pages"
+    pages_payload = {"source": {"branch": "main", "path": "/"}}
+    enable_pages = requests.post(pages_api_url, headers=headers, json=pages_payload)
 
+    if enable_pages.status_code in [201, 204]:
+        print("✅ GitHub Pages successfully enabled.")
+    else:
+        print(f"⚠️ Warning: GitHub Pages enable failed — {enable_pages.text}")
+
+    # ✅ Optional Step 7 — Wait until GitHub Pages goes live
+    print("⏳ Waiting for GitHub Pages to become live...")
+    for _ in range(20):  # wait up to ~2 minutes
+        r = requests.get(pages_url)
+        if r.status_code == 200:
+            print("✅ GitHub Pages is live!")
+            break
+        time.sleep(6)
+
+    return repo_url, commit_sha, pages_url
