@@ -9,7 +9,7 @@ app = Flask(__name__)
 # Load secret and GitHub token
 
 
-SECRET = os.environ.get("SECRET")
+STUDENT_SECRET = os.environ.get("SECRET")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 GITHUB_USERNAME = os.environ.get("GITHUB_USERNAME")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
