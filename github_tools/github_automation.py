@@ -11,7 +11,7 @@ def create_and_deploy_repo(task, app_dir):
     github_token = os.environ.get("GITHUB_TOKEN")
     github_username = os.environ.get("GITHUB_USERNAME")
 
-    # ✅ Add timestamp to make repo name unique
+    # ✅ Always unique repo name using timestamp
     repo_name = f"{task}-{int(time.time())}"
 
     # ✅ Step 1 — Create repo on GitHub
@@ -40,34 +40,34 @@ def create_and_deploy_repo(task, app_dir):
     subprocess.run(["git", "add", "."], cwd=app_dir, check=True)
     subprocess.run(["git", "commit", "-m", "Initial commit"], cwd=app_dir, check=True)
 
-    # ✅ Step 3 — Get commit SHA (safe now)
+    # ✅ Step 3 — Get commit SHA
     commit_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=app_dir).decode().strip()
 
-    # ✅ Step 4 — Push to GitHub
+    # ✅ Step 4 — Push to GitHub safely
     subprocess.run(["git", "branch", "-M", "main"], cwd=app_dir, check=True)
+
+    # Remove old origin if exists, then add new
+    subprocess.run(["git", "remote", "remove", "origin"], cwd=app_dir, check=False)
     subprocess.run([
         "git", "remote", "add", "origin",
         f"https://{github_token}@github.com/{github_username}/{repo_name}.git"
     ], cwd=app_dir, check=True)
+
     subprocess.run(["git", "push", "-u", "origin", "main"], cwd=app_dir, check=True)
 
-    # ✅ Step 5 — GitHub Pages URL
+    # ✅ Step 5 — Enable GitHub Pages
     pages_url = f"https://{github_username}.github.io/{repo_name}/"
-    print(f"🌐 GitHub Pages URL: {pages_url}")
-
-    # ✅ Step 6 — Enable GitHub Pages (important!)
     pages_api_url = f"https://api.github.com/repos/{github_username}/{repo_name}/pages"
     pages_payload = {"source": {"branch": "main", "path": "/"}}
     enable_pages = requests.post(pages_api_url, headers=headers, json=pages_payload)
-
     if enable_pages.status_code in [201, 204]:
         print("✅ GitHub Pages successfully enabled.")
     else:
         print(f"⚠️ Warning: GitHub Pages enable failed — {enable_pages.text}")
 
-    # ✅ Optional Step 7 — Wait until GitHub Pages goes live
+    # ✅ Step 6 — Wait for Pages to go live
     print("⏳ Waiting for GitHub Pages to become live...")
-    for _ in range(20):  # wait up to ~2 minutes
+    for _ in range(20):
         r = requests.get(pages_url)
         if r.status_code == 200:
             print("✅ GitHub Pages is live!")
