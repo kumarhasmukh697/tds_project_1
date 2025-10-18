@@ -3,6 +3,7 @@ import os
 import json
 from generator.llm_generator import generate_app_code
 from github_tools.github_automation import create_and_deploy_repo
+import traceback
 
 app = Flask(__name__)
 
@@ -55,6 +56,8 @@ def api_endpoint():
         return jsonify(response_payload), 200
 
     except Exception as e:
+        print("❌ INTERNAL SERVER ERROR:")
+        print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 
